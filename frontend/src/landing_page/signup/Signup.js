@@ -19,9 +19,12 @@ function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const url = isSignup
-      ? "http://localhost:3002/signup"
-      : "http://localhost:3002/login";
+    const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
+const url = isSignup
+  ? `${BACKEND_URL}/signup`
+  : `${BACKEND_URL}/login`;
+
 
     try {
       const res = await axios.post(
