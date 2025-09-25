@@ -45,7 +45,8 @@ const url = isSignup
 
       if (!isSignup && res.data.toLowerCase().includes("successful")) {
         // Login successful, redirect to dashboard
-        window.location.href = "http://localhost:3000"; // ✅ dashboard
+         window.location.href = process.env.REACT_APP_DASHBOARD_URL; // live frontend
+// ✅ dashboard
       }
     } catch (err) {
       setMessage(err.response?.data || "Error occurred");
