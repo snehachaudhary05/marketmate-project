@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-
 import axios from "axios";
-
 import GeneralContext from "./GeneralContext";
 
 import "./BuyActionWindow.css";
@@ -11,15 +9,22 @@ const BuyActionWindow = ({ uid }) => {
   const [stockQuantity, setStockQuantity] = useState(1);
   const [stockPrice, setStockPrice] = useState(0.0);
 
-  const handleBuyClick = () => {
-    axios.post("http://localhost:3002/newOrder", {
-      name: uid,
-      qty: stockQuantity,
-      price: stockPrice,
-      mode: "BUY",
-    });
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL; // ✅ Use env variable
 
-    GeneralContext.closeBuyWindow();
+  const handleBuyClick = () => {
+    axios
+      .post(`${BACKEND_URL}/newOrder`, {   // ✅ updated URL
+        name: uid,
+        qty: stockQuantity,
+        price: stockPrice,
+        mode: "BUY",
+      })
+      .then(() => {
+        GeneralContext.closeBuyWindow();
+      })
+      .catch((err) => {
+        console.error("Error placing order:", err);
+      });
   };
 
   const handleCancelClick = () => {
