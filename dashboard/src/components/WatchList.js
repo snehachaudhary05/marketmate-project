@@ -11,7 +11,7 @@ const WatchList = () => {
 
   useEffect(() => {
     if (BACKEND_URL) {
-      axios.get(`${BACKEND_URL}/watchlist`) // change to your real endpoint
+      axios.get(`${BACKEND_URL}/allHoldings`) // change to your real endpoint
         .then((res) => setWatchlist(res.data))
         .catch((err) => console.error("Error fetching watchlist:", err));
     }

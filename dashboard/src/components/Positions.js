@@ -9,7 +9,7 @@ const Positions = () => {
   useEffect(() => {
     if (BACKEND_URL) {
       axios
-        .get(`${BACKEND_URL.replace(/\/$/, "")}/positions`) // replace with your real endpoint
+        .get(`${BACKEND_URL.replace(/\/$/, "")}/allPositions`) // replace with your real endpoint
         .then((res) => setPositions(res.data))
         .catch((err) => console.error("Error fetching positions:", err));
     }
