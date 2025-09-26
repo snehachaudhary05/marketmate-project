@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-
 const Positions = () => {
   const [positions, setPositions] = useState([]);
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
     if (BACKEND_URL) {
       axios
-        .get(`${BACKEND_URL.replace(/\/$/, "")}/allPositions`) // replace with your real endpoint
+        .get(`${BACKEND_URL.replace(/\/$/, "")}/allPositions`)
         .then((res) => setPositions(res.data))
         .catch((err) => console.error("Error fetching positions:", err));
     }
-  }, []);
+  }, [BACKEND_URL]);
 
   return (
     <>
