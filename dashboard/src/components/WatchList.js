@@ -10,18 +10,17 @@ const WatchList = () => {
   const [watchlist, setWatchlist] = useState([]);
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
-  const { buyWindowStock, closeBuyWindow, openBuyWindow } = useContext(GeneralContext);
+  const { buyWindowStock, openBuyWindow } = useContext(GeneralContext);
 
-  // Fetch watchlist data
+  // Fetch holdings data to use as watchlist
   useEffect(() => {
     if (BACKEND_URL) {
-      axios.get(`${BACKEND_URL}/watchlist`) // replace with your real endpoint
+      axios.get(`${BACKEND_URL.replace(/\/$/, "")}/allHoldings`)
         .then((res) => setWatchlist(res.data))
         .catch((err) => console.error("Error fetching watchlist:", err));
     }
   }, [BACKEND_URL]);
 
-  // Doughnut chart data
   const data = {
     labels: watchlist.map((stock) => stock.name),
     datasets: [
@@ -90,17 +89,17 @@ const WatchListItem = ({ stock, openBuyWindow }) => {
       onMouseLeave={() => setShowActions(false)}
     >
       <div style={styles.item}>
-        <p style={{ ...styles.stockName, color: stock.isDown ? "#e74c3c" : "#2ecc71" }}>
+        <p style={{ ...styles.stockName, color: stock.priceChange < 0 ? "#e74c3c" : "#2ecc71" }}>
           {stock.name}
         </p>
         <div style={styles.itemInfo}>
-          <span style={styles.percent}>{stock.percent}</span>
-          {stock.isDown ? (
+          <span style={styles.percent}>{stock.priceChange}%</span>
+          {stock.priceChange < 0 ? (
             <KeyboardArrowDown style={{ color: "#e74c3c" }} />
           ) : (
             <KeyboardArrowUp style={{ color: "#2ecc71" }} />
           )}
-          <span style={styles.price}>{stock.price}</span>
+          <span style={styles.price}>{stock.price.toFixed(2)}</span>
         </div>
       </div>
 
@@ -136,7 +135,6 @@ const WatchListActions = ({ uid, openBuyWindow }) => {
     </div>
   );
 };
-
 // CSS in JS
 const styles = {
   container: { padding: "1rem", maxWidth: "100%" },

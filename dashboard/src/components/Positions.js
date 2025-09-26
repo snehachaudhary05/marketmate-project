@@ -1,7 +1,8 @@
 import React from "react";
 
-import { positions } from "../data/data";
+import data from "axios";
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const Positions = () => {
   return (
     <>

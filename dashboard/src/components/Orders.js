@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const Orders = () => {
   return (
     <div className="orders">
