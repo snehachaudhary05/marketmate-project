@@ -108,6 +108,17 @@ app.post("/newOrder", async (req, res) => {
   await newOrder.save();
   res.send("Order saved!");
 });
+// ===== FETCH ALL ORDERS =====
+app.get("/allOrders", async (req, res) => {
+  try {
+    const allOrders = await OrdersModel.find({});
+    res.json(allOrders);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
+});
+
 
 // ===== CONNECT TO MONGODB =====
 mongoose
