@@ -4,19 +4,24 @@ import { BarChartOutlined, KeyboardArrowDown, KeyboardArrowUp, MoreHoriz } from 
 import GeneralContext from "./GeneralContext";
 import axios from "axios";
 import { DoughnutChart } from "./DoughnutChart";
+import BuyActionWindow from "./BuyActionWindow";
 
 const WatchList = () => {
   const [watchlist, setWatchlist] = useState([]);
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
+  const { buyWindowStock, closeBuyWindow, openBuyWindow } = useContext(GeneralContext);
+
+  // Fetch watchlist data
   useEffect(() => {
     if (BACKEND_URL) {
-      axios.get(`${BACKEND_URL}/watchlist`) // change to your real endpoint
+      axios.get(`${BACKEND_URL}/watchlist`) // replace with your real endpoint
         .then((res) => setWatchlist(res.data))
         .catch((err) => console.error("Error fetching watchlist:", err));
     }
   }, [BACKEND_URL]);
 
+  // Doughnut chart data
   const data = {
     labels: watchlist.map((stock) => stock.name),
     datasets: [
@@ -46,36 +51,43 @@ const WatchList = () => {
 
   return (
     <div className="watchlist-container" style={styles.container}>
+      {/* Search bar */}
       <div className="search-container" style={styles.searchContainer}>
-        <input type="text" placeholder="Search eg: infy, bse, nifty fut weekly, gold mcx" style={styles.searchInput} />
+        <input
+          type="text"
+          placeholder="Search eg: infy, bse, nifty fut weekly, gold mcx"
+          style={styles.searchInput}
+        />
         <span style={styles.counts}>{watchlist.length} / 50</span>
       </div>
 
+      {/* Stock list */}
       <ul style={styles.list}>
         {watchlist.map((stock, index) => (
-          <WatchListItem stock={stock} key={index} />
+          <WatchListItem key={index} stock={stock} openBuyWindow={openBuyWindow} />
         ))}
       </ul>
 
+      {/* Doughnut chart */}
       <div style={styles.chartContainer}>
         <DoughnutChart data={data} />
       </div>
+
+      {/* BuyActionWindow */}
+      {buyWindowStock && <BuyActionWindow uid={buyWindowStock} />}
     </div>
   );
 };
 
-// ...WatchListItem and WatchListActions remain the same
-
-export default WatchList;
-
-const WatchListItem = ({ stock }) => {
-  const [showWatchlistActions, setShowWatchlistActions] = useState(false);
+// Single stock row
+const WatchListItem = ({ stock, openBuyWindow }) => {
+  const [showActions, setShowActions] = useState(false);
 
   return (
     <li
       style={styles.listItem}
-      onMouseEnter={() => setShowWatchlistActions(true)}
-      onMouseLeave={() => setShowWatchlistActions(false)}
+      onMouseEnter={() => setShowActions(true)}
+      onMouseLeave={() => setShowActions(false)}
     >
       <div style={styles.item}>
         <p style={{ ...styles.stockName, color: stock.isDown ? "#e74c3c" : "#2ecc71" }}>
@@ -91,15 +103,15 @@ const WatchListItem = ({ stock }) => {
           <span style={styles.price}>{stock.price}</span>
         </div>
       </div>
-      {showWatchlistActions && <WatchListActions uid={stock.name} />}
+
+      {showActions && <WatchListActions uid={stock.name} openBuyWindow={openBuyWindow} />}
     </li>
   );
 };
 
-const WatchListActions = ({ uid }) => {
-  const generalContext = useContext(GeneralContext);
-
-  const handleBuyClick = () => generalContext.openBuyWindow(uid);
+// Actions (Buy/Sell/Analytics/More)
+const WatchListActions = ({ uid, openBuyWindow }) => {
+  const handleBuyClick = () => openBuyWindow(uid);
 
   return (
     <div style={styles.actionsContainer}>
@@ -125,97 +137,24 @@ const WatchListActions = ({ uid }) => {
   );
 };
 
-// Responsive CSS in JS
+// CSS in JS
 const styles = {
-  container: {
-    padding: "1rem",
-    maxWidth: "100%",
-  },
-  searchContainer: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-start",
-    marginBottom: "1rem",
-  },
-  searchInput: {
-    width: "100%",
-    padding: "0.5rem",
-    marginBottom: "0.25rem",
-    fontSize: "1rem",
-    boxSizing: "border-box",
-  },
-  counts: {
-    fontSize: "0.9rem",
-    color: "#666",
-  },
-  list: {
-    listStyle: "none",
-    padding: 0,
-    margin: 0,
-  },
-  listItem: {
-    display: "flex",
-    flexDirection: "column",
-    padding: "0.5rem 0",
-    borderBottom: "1px solid #eee",
-  },
-  item: {
-    display: "flex",
-    justifyContent: "space-between",
-    flexWrap: "wrap",
-    alignItems: "center",
-  },
-  stockName: {
-    fontWeight: "bold",
-    margin: 0,
-    fontSize: "1rem",
-  },
-  itemInfo: {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.5rem",
-    flexWrap: "wrap",
-  },
-  percent: {
-    fontSize: "0.9rem",
-  },
-  price: {
-    fontWeight: "bold",
-    fontSize: "0.95rem",
-  },
-  actionsContainer: {
-    display: "flex",
-    gap: "0.5rem",
-    flexWrap: "wrap",
-    marginTop: "0.5rem",
-  },
-  buyButton: {
-    backgroundColor: "#2ecc71",
-    color: "#fff",
-    border: "none",
-    padding: "0.25rem 0.5rem",
-    borderRadius: "4px",
-    cursor: "pointer",
-  },
-  sellButton: {
-    backgroundColor: "#e74c3c",
-    color: "#fff",
-    border: "none",
-    padding: "0.25rem 0.5rem",
-    borderRadius: "4px",
-    cursor: "pointer",
-  },
-  actionButton: {
-    backgroundColor: "#3498db",
-    color: "#fff",
-    border: "none",
-    padding: "0.25rem 0.5rem",
-    borderRadius: "4px",
-    cursor: "pointer",
-  },
-  chartContainer: {
-    marginTop: "2rem",
-    maxWidth: "100%",
-    overflowX: "auto",
-  },
+  container: { padding: "1rem", maxWidth: "100%" },
+  searchContainer: { display: "flex", flexDirection: "column", alignItems: "flex-start", marginBottom: "1rem" },
+  searchInput: { width: "100%", padding: "0.5rem", marginBottom: "0.25rem", fontSize: "1rem", boxSizing: "border-box" },
+  counts: { fontSize: "0.9rem", color: "#666" },
+  list: { listStyle: "none", padding: 0, margin: 0 },
+  listItem: { display: "flex", flexDirection: "column", padding: "0.5rem 0", borderBottom: "1px solid #eee" },
+  item: { display: "flex", justifyContent: "space-between", flexWrap: "wrap", alignItems: "center" },
+  stockName: { fontWeight: "bold", margin: 0, fontSize: "1rem" },
+  itemInfo: { display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" },
+  percent: { fontSize: "0.9rem" },
+  price: { fontWeight: "bold", fontSize: "0.95rem" },
+  actionsContainer: { display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "0.5rem" },
+  buyButton: { backgroundColor: "#2ecc71", color: "#fff", border: "none", padding: "0.25rem 0.5rem", borderRadius: "4px", cursor: "pointer" },
+  sellButton: { backgroundColor: "#e74c3c", color: "#fff", border: "none", padding: "0.25rem 0.5rem", borderRadius: "4px", cursor: "pointer" },
+  actionButton: { backgroundColor: "#3498db", color: "#fff", border: "none", padding: "0.25rem 0.5rem", borderRadius: "4px", cursor: "pointer" },
+  chartContainer: { marginTop: "2rem", maxWidth: "100%", overflowX: "auto" },
 };
+
+export default WatchList;
