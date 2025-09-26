@@ -1,21 +1,24 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Tooltip, Grow } from "@mui/material";
-import {
-  BarChartOutlined,
-  KeyboardArrowDown,
-  KeyboardArrowUp,
-  MoreHoriz,
-} from "@mui/icons-material";
-
+import { BarChartOutlined, KeyboardArrowDown, KeyboardArrowUp, MoreHoriz } from "@mui/icons-material";
 import GeneralContext from "./GeneralContext";
-import { watchlist } from "../data/data";
-import { DoughnutChart } from "./DoughnoutChart";
-
-const labels = watchlist.map((subArray) => subArray.name);
+import axios from "axios";
+import { DoughnutChart } from "./DoughnutChart";
 
 const WatchList = () => {
+  const [watchlist, setWatchlist] = useState([]);
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
+  useEffect(() => {
+    if (BACKEND_URL) {
+      axios.get(`${BACKEND_URL}/watchlist`) // change to your real endpoint
+        .then((res) => setWatchlist(res.data))
+        .catch((err) => console.error("Error fetching watchlist:", err));
+    }
+  }, [BACKEND_URL]);
+
   const data = {
-    labels,
+    labels: watchlist.map((stock) => stock.name),
     datasets: [
       {
         label: "Price",
@@ -44,14 +47,8 @@ const WatchList = () => {
   return (
     <div className="watchlist-container" style={styles.container}>
       <div className="search-container" style={styles.searchContainer}>
-        <input
-          type="text"
-          name="search"
-          id="search"
-          placeholder="Search eg: infy, bse, nifty fut weekly, gold mcx"
-          style={styles.searchInput}
-        />
-        <span style={styles.counts}> {watchlist.length} / 50</span>
+        <input type="text" placeholder="Search eg: infy, bse, nifty fut weekly, gold mcx" style={styles.searchInput} />
+        <span style={styles.counts}>{watchlist.length} / 50</span>
       </div>
 
       <ul style={styles.list}>
@@ -66,6 +63,8 @@ const WatchList = () => {
     </div>
   );
 };
+
+// ...WatchListItem and WatchListActions remain the same
 
 export default WatchList;
 
